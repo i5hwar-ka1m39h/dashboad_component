@@ -1,42 +1,181 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.table-container {
+    overflow: auto;
+    max-height: calc(100vh - 100px); /* Adjust height for fixed elements */
+    margin: 20px 0;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .fixed-top {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 10; /* Ensure it stays above other content */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for clarity */
+    padding: 10px 20px; /* Optional: Add padding for spacing */
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  
+  th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    position: sticky;
+    top: 0px; /* Adjust this value based on the height of the fixed-top div */
+    z-index: 9; /* Ensure table headers are below the fixed-top div */
   }
-}
+  
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
+  
+  table{
+    width: 100%;
+    border-collapse: separate;
+    margin: 20px 0;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-spacing: 0 0;
+  }
+  
+  th, td{
+    /* border: 1px solid #ddd; */
+    padding: 12px 15px;
+    text-align: left;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    overflow: auto;
+    border-radius: 5px;
+    
+    
+  
+  }
+  
+  
+  
+  
+  
+  
+  
+  th::-webkit-scrollbar, td::-webkit-scrollbar{
+    height: 3px;
+    background-color: rgb(79, 173, 255);
+  
+  
+  }
+  
+  
+  
+  th::-webkit-scrollbar-thumb, td::-webkit-scrollbar-thumb{
+    background-color: #ccc;
+  }
+  
+  
+  
+  tr:hover{
+    background-color: #f1f1f1;
+  
+  }
+  
+  tr:hover td{
+    border: 1px solid rgb(128, 128, 128);
+    
+  }
+  
+  .table-container::-webkit-scrollbar{
+    width: 8px;
+    height: 8px;
+  }
+  
+  .table-container::-webkit-scrollbar-thumb{
+    background-color: #888;
+    border-radius: 10px;
+  }
+  
+  .table-container::-webkit-scrollbar-thumb:hover{
+    background-color: #555;
+  }
+  
+  .table-container::-webkit-scrollbar-track{
+    background-color: #f4f4f4;
+    border-radius: 10px;
+  }
+  
+  /* Overlay for the modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 999; /* Ensures the overlay is above other content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  /* Modal container */
+  .modal-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-30px);
+    opacity: 0;
+    animation: modalAppear 0.3s forwards;
+  }
+  
+  /* Close button styling */
+  .modal-container button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .modal-container button:hover {
+    background-color: #d32f2f;
+  }
+  
+  /* Add some padding and style to the content */
+  .modal-container h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .modal-container p {
+    font-size: 16px;
+    margin-bottom: 5px;
+    line-height: 1.5;
+  }
+  
+  /* Animation for modal appearance */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes modalAppear {
+    0% {
+      transform: translateY(-30px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  
+  .btn-flex{
+    display: flex;
+    justify-content: end;
+  }
