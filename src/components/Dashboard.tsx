@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,  useRef, DragEvent, ChangeEvent } from 'react';
 import { icons, LibraryBig, MessageCircle, StickyNote, Image, ListTodo, Users, ImagePlus, Target, Divide } from 'lucide-react';
 import  {Button} from './ui/button';
 import { Input } from './ui/input';
@@ -9,6 +9,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Label } from './ui/label';
+import { Upload, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -41,6 +43,7 @@ const Dashboard = () => {
 export default Dashboard;
 
 const Navbar = () => {
+  const navigate = useNavigate()
     const LogOut = icons['LogOut']
     const Person = icons['UserRound']
     const Search = icons['Search']
@@ -56,7 +59,7 @@ const Navbar = () => {
       </div>
 
       <div className=' flex gap-5'>
-        <Button className=' bg-white hover:bg-gray-300'><LogOut  color='black'/></Button>
+        <Button className=' bg-white hover:bg-gray-300' onClick={()=>navigate('/')}><LogOut  color='black'/></Button>
         <Button className=' bg-white hover:bg-gray-300'><Person color='black'/></Button>
       </div>
     </nav>
@@ -248,108 +251,225 @@ const Table = ({  head }:{head:string}) => {
 };
 
 
-const AddComponent = () =>{
-  const [formData, setFormData] = useState<any>({
-    name:"",
-    quantity:"",
-    price:"",
-  })
+const Filler = () => {
+  return (
+    <div className='bg-gray-300 h-full flex items-center justify-center text-gray-600 p-5'>
+      No Image Selected
+    </div>
+  );
+};
 
-  const[file, setFile] = useState<File| undefined>()
-  const[preview, setPreview] = useState<any>()
+const AddComponent = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    quantity: "",
+    price: "",
+  });
 
-  const handleChange = (e:React.FocusEvent<HTMLInputElement>) =>{
-    const {id, value} = e.target
-    setFormData((prev:any) =>({
+  const [file, setFile] = useState<File | undefined>();
+  const [preview, setPreview] = useState<string | undefined>();
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [id]:value
-    }))
-  }
+      [id]: value
+    }));
+  };
 
-  const handleSubmit = (e:React.SyntheticEvent) =>{
-    e.preventDefault()
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    if(!file) return;
+    if (!file) {
+      alert('Please upload an image');
+      return;
+    }
 
-    const formVal = new FormData()
-    formVal.append('file', file)
-    formVal.append('name', formData.name)
-    formVal.append('price', formData.price)
-    formVal.append('quantiy', formData.quantity)
+    const formVal = new FormData();
+    formVal.append('file', file);
+    formVal.append('name', formData.name);
+    formVal.append('price', formData.price);
+    formVal.append('quantity', formData.quantity);
 
     for (const [key, value] of formVal.entries()) {
       console.log(key, value);
     }
-    
-  
-  }
+  };
 
-  const handleFileChange = (e:React.ChangeEvent<HTMLInputElement>) =>{
-    if(e.target.files && e.target.files[0]){
-      const selectedFile = e.target.files[0]
-      setFile(selectedFile)
-
-      const reader = new FileReader();
-
-      reader.onloadend = () =>{
-        setPreview(reader.result as string)
-      }
-
-      reader.readAsDataURL(selectedFile)
+  const processFile = (selectedFile: File) => {
+    // Validate file type
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    if (!validTypes.includes(selectedFile.type)) {
+      alert('Please upload a valid image file (PNG, JPEG, JPG)');
+      return;
     }
 
-  }
+    setFile(selectedFile);
 
-  return(
-    <div className=' grid grid-cols-12 m-5 gap-2'>
-      {/* for submission of image */}
-      <div className=' col-span-12 lg:col-span-6 border p-5 '>
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result as string);
+    };
+    reader.readAsDataURL(selectedFile);
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      processFile(e.target.files[0]);
+    }
+  };
+
+  // Drag and Drop Handlers
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const droppedFiles = e.dataTransfer?.files;
+    if (droppedFiles && droppedFiles.length > 0) {
+      processFile(droppedFiles[0]);
+    }
+  };
+
+  // Trigger file input click
+  const openFileDialog = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Remove uploaded file
+  const removeFile = () => {
+    setFile(undefined);
+    setPreview(undefined);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  return (
+    <div className='grid grid-cols-12 m-5 gap-2'>
+      {/* Form Submission */}
+      <div className='col-span-12 lg:col-span-6 border p-5'>
         <form onSubmit={handleSubmit}>
+          <div className='mb-4'>
+            <Label>Product name</Label>
+            <Input 
+              type='text' 
+              value={formData.name} 
+              id="name" 
+              name='name'
+              onChange={handleChange}
+              placeholder="Enter product name"
+            />
+          </div>
+          <div className='mb-4'>
+            <Label>Product quantity</Label>
+            <Input 
+              type='text' 
+              value={formData.quantity} 
+              id='quantity' 
+              name='quantity'
+              onChange={handleChange}
+              placeholder="Enter product quantity"
+            />
+          </div>
+          <div className='mb-4'>
+            <Label>Product price</Label>
+            <Input 
+              type='text' 
+              value={formData.price} 
+              id='price' 
+              name='price' 
+              onChange={handleChange}
+              placeholder="Enter product price"
+            />
+          </div>
+          
+          {/* File Input with Drag and Drop */}
           <div>
-            <Label>Product name </Label>
-            <Input type='text' value={formData.name} id="name" name='name'onChange={handleChange}/>
+            <Label>Product image/images</Label>
+            <input 
+              type="file" 
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/png, image/jpeg, image/jpg"
+              className="hidden"
+            />
+            
+            <div 
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={openFileDialog}
+              className={`
+                border-2 border-dashed rounded-lg p-4 text-center cursor-pointer 
+                transition-all duration-300
+                ${isDragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
+              `}
+            >
+              {!file ? (
+                <div>
+                  <Upload className="mx-auto mb-2 text-gray-500" size={40} />
+                  <p className="text-gray-600">
+                    Drag and drop an image here, or click to select
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    PNG, JPEG, JPG (max 5MB)
+                  </p>
+                </div>
+              ) : (
+                <div className="relative">
+                  <button 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFile();
+                    }}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 z-10"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
-            <Label>Product quantity </Label>
-            <Input type='text' value={formData.quantity} id='quantity' name='quantity'onChange={handleChange}/>
-          </div>
-
-          <div>
-            <Label>Product price </Label>
-            <Input type='text' value={formData.price} id='price' name='price' onChange={handleChange}/>
-          </div>
-
-          <div>
-            <Label>Product image/images </Label>
-            <Input type='file' name='image' id='image' accept='image/png, image/jpeg, image/jpg' onChange={handleFileChange}/>
-          </div>
-
-          <div>
-            <Button type='submit' className='mt-5 hover:bg-gray-300'>Submit</Button>
+            <Button type='submit' className='mt-5 hover:bg-gray-300'>
+              Submit
+            </Button>
           </div>
         </form>
       </div>
 
-      {/* for preview */}
-      <div className=' col-span-12 lg:col-span-6 w-full h-96 flex flex-col text-center border items-center'>
-        <div className=''>
-
-       {preview? <img src={preview} alt="preview" width={400} height={600}/> : <Filler/>}
+      {/* Preview Section */}
+      <div className='col-span-12 lg:col-span-6 w-full h-96 flex flex-col text-center border items-center'>
+        <div className='w-full h-full'>
+          {preview ? (
+            <img 
+              src={preview} 
+              alt="preview" 
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <Filler />
+          )}
         </div>
-        
-
-        <h1>image preview</h1>
+        <h1 className='mt-2'>Image Preview</h1>
       </div>
-
     </div>
-  )
-}
-
-const Filler = () =>{
-  return (
-    <div className=' bg-gray-300 h-full'>
-      No Image Selected
-    </div>
-  )
-}
+  );
+};
