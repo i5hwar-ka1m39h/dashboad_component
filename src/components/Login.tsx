@@ -36,8 +36,8 @@ const Login = () => {
     
   }
   return (
-    <div className=' h-screen w-screen flex items-center justify-center gap-4 bg-gray-600'>
-    <Card className="w-[450px] h-[300px] bg-slate-100">
+    <div className=' h-screen w-screen flex flex-col lg:flex-row items-center justify-center gap-4 bg-gray-600'>
+    <Card className="w-[450px] p-4 bg-slate-100">
     <CardHeader>
       <CardTitle>Admin Login</CardTitle>
       <CardDescription>Enter your credential to go to dashboard.</CardDescription>
@@ -66,7 +66,7 @@ const Login = () => {
     </CardFooter>
   </Card>
 
-  <Card className="w-[450px] h-[300px] bg-slate-100">
+  <Card className="w-[450px]  bg-slate-100">
     <CardHeader>
       <CardTitle>A note </CardTitle>
       <CardDescription>Read the following before proceeding.</CardDescription>
